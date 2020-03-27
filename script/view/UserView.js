@@ -43,7 +43,7 @@ class UserView extends Croquet.View {
             if(object) {
                 this.publish(this.viewId, "message-open", {
                     fromUserModel : userModel,
-                    toUserModel : this.model,
+                    toUser : this,
                     object,
                 });
             }

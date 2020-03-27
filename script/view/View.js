@@ -71,11 +71,10 @@ class View extends Croquet.View {
             this.users.splice(this.users.indexOf(user), 1);
     }
 
-    openMessage({object, fromUserModel, toUserModel}) {
+    openMessage({object, fromUserModel, toUser}) {
         this.publish(this.viewId, "message", {
-            object,
+            object, toUser,
             fromUser : this.getUserByUserModel(fromUserModel),
-            toUser : this.getUserByUserModel(toUserModel),
         });
     }
     onmessage({fromUser, toUser, object}) {
