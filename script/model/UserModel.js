@@ -14,7 +14,7 @@ class UserModel extends Croquet.Model {
         this.subscribe(this.sessionId, "view-exit", this.exit);
         this.subscribe(this.id, "view-join-request", this.join);
 
-        this.subscribe(this.id, "message-send", this.onmessage);
+        this.subscribe(this.id, "send-encrypted-message", this.onmessage);
     }
 
     get isOnline() {
@@ -34,7 +34,7 @@ class UserModel extends Croquet.Model {
             this.publish(this.id, "user-exit");
         }
     }
-
+    
     unregister() {
         const object = this.crypto.verify(...arguments);
         if(object) {
@@ -46,7 +46,7 @@ class UserModel extends Croquet.Model {
     onmessage({nonce}) {
         if(this.crypto.isNonceUnique(nonce)) {
             this.crypto.nonces.push(nonce);
-            this.publish(this.id, "message-receive", ...arguments);
+            this.publish(this.id, "receive-encrypted-message", ...arguments);
         }
     }
 }

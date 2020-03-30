@@ -17,9 +17,6 @@ class View extends Croquet.View {
 
         // https://croquet.studio/sdk/docs/global.html#event:synced
         this.subscribe(this.viewId, "synced", this.synced);
-
-        this.subscribe(this.viewId, "message-open", this.openMessage);
-        this.subscribe(this.viewId, "message", this.onmessage);      
     }
 
     userJoin(user) {
@@ -29,6 +26,10 @@ class View extends Croquet.View {
         
     }
 
+    get userIndex() {
+        return this.users.indexOf(this.user);
+    }
+
     synced() {
         console.log("synced");
         if(!this.user)
@@ -36,7 +37,6 @@ class View extends Croquet.View {
     }
     
     register() {
-        console.log("registering self");
         this.publish(this.sessionId, "user-register-request", this.crypto.sign({
             viewId : this.viewId,
             encryptionPublicKey : Array.from(this.crypto.encryptionKeyPair.publicKey),
@@ -69,16 +69,6 @@ class View extends Croquet.View {
         
         if(user)
             this.users.splice(this.users.indexOf(user), 1);
-    }
-
-    openMessage({object, fromUserModel, toUser}) {
-        this.publish(this.viewId, "message", {
-            object, toUser,
-            fromUser : this.getUserByUserModel(fromUserModel),
-        });
-    }
-    onmessage({fromUser, toUser, object}) {
-        console.log(fromUser, toUser, object);
     }
 }
 

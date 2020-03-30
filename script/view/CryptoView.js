@@ -68,6 +68,7 @@ class CryptoView extends Croquet.View {
         }
     }
 
+    // https://github.com/dchest/tweetnacl-js#public-key-authenticated-encryption-box
     encrypt(object, encryptionPublicKey) {
         const nonce = this.model.createNonce();
         const objectEncoding = textEncoder.encode(JSON.stringify(object));
