@@ -1,8 +1,8 @@
-class Model extends Croquet.Model {
+class MarkerModel extends Croquet.Model {
     init() {
         super.init();
     }
 }
-Model.register();
+MarkerModel.register();
 
-export default Model;
+export default MarkerModel;

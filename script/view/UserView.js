@@ -1,13 +1,11 @@
 import PeerView from "./PeerView.js";
 import TorrentView from "./TorrentView.js";
+import MarkerView from "./MarkerView.js";
 
 class UserView extends Croquet.View {
     constructor(model, options = {}) {
         super(model);
         this.model = model;
-
-        this.peer = new PeerView(model);
-        this.client = new TorrentView();
 
         const {crypto, viewId} = options;
         if(crypto) {
@@ -24,6 +22,16 @@ class UserView extends Croquet.View {
         this.subscribe(this.model.id, "user-exit", this.userExit);  
 
         this.subscribe(this.model.id, "user-unregister", this.unregistered);
+
+        this.peer = new PeerView(model);
+
+        this.client = new TorrentView();
+
+        this.markers = [];
+        this.model.markers.forEach(markerModel => {
+            const marker = new MarkerView(markerModel);
+            this.markers.push(marker);
+        });
     }
 
     login(viewId) {
