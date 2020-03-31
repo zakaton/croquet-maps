@@ -1,11 +1,14 @@
 import CryptoView from "./CryptoView.js";
 import UserView from "./UserView.js";
+import TorrentManagerView from "./TorrentManagerView.js";
 
 class View extends Croquet.View {
     constructor(model) {
         super(model);
         this.model = model;
         this.crypto = new CryptoView(model.crypto);
+
+        this.client = new TorrentManagerView();
 
         this.users = [];
         model.users.forEach(userModel => this.userRegister(userModel));

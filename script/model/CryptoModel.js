@@ -6,7 +6,7 @@ class CryptoModel extends Croquet.Model {
         super.init();
         const {nonces, encryptionPublicKey, signaturePublicKey} = options;
 
-        this.nonces = nonces || this.wellKnownModel("CryptoModel").nonces || [];
+        this.nonces = nonces || this.wellKnownModel("RootCryptoModel").nonces || [];
 
         this.signaturePublicKey = new Uint8Array(signaturePublicKey);
         this.encryptionPublicKey = new Uint8Array(encryptionPublicKey);

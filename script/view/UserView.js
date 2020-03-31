@@ -7,7 +7,7 @@ class UserView extends Croquet.View {
         this.model = model;
 
         this.peer = new PeerView(model);
-        this.client = new TorrentView(model);
+        this.client = new TorrentView();
 
         const {crypto, viewId} = options;
         if(crypto) {
