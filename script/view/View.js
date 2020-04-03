@@ -1,14 +1,13 @@
 import CryptoView from "./CryptoView.js";
 import UserView from "./UserView.js";
 import TorrentManagerView from "./TorrentManagerView.js";
+import MapView from "./MapView.js";
 
 class View extends Croquet.View {
     constructor(model) {
         super(model);
         this.model = model;
         this.crypto = new CryptoView(model.crypto);
-
-        this.client = new TorrentManagerView();
 
         this.users = [];
         model.users.forEach(userModel => this.userRegister(userModel));
@@ -20,25 +19,14 @@ class View extends Croquet.View {
 
         // https://croquet.studio/sdk/docs/global.html#event:synced
         this.subscribe(this.viewId, "synced", this.synced);
+
+        this.client = new TorrentManagerView();
+
+        this.map = new MapView(model, {
+            accessToken : 'pk.eyJ1IjoiemFrYXRvbiIsImEiOiJjazVoN2pxNjQwMHdyM25vZDFxbHl0cHJ6In0.jdS84m3f3cr4ZxHeSDUyBA',
+        });
     }
 
-    userJoin(user) {
-        
-    }
-    userExit(user) {
-        
-    }
-
-    get userIndex() {
-        return this.users.indexOf(this.user);
-    }
-
-    synced() {
-        console.log("synced");
-        if(!this.user)
-            this.register();
-    }
-    
     register() {
         this.publish(this.sessionId, "user-register-request", this.crypto.sign({
             viewId : this.viewId,
@@ -50,8 +38,8 @@ class View extends Croquet.View {
         // https://github.com/dchest/tweetnacl-js#naclverifyx-y
         return nacl.verify(userModel.crypto.signaturePublicKey, this.crypto.signatureKeyPair.publicKey);
     }
-    getUserByUserModel(userModel) {
-        return this.users.find(user => user.model == userModel);
+    get userIndex() {
+        return this.users.indexOf(this.user);
     }
 
     userRegister(userModel) {
@@ -72,6 +60,19 @@ class View extends Croquet.View {
         
         if(user)
             this.users.splice(this.users.indexOf(user), 1);
+    }
+
+    userJoin(user) {
+        
+    }
+    userExit(user) {
+        
+    }
+
+    synced() {
+        console.log("synced");
+        if(!this.user)
+            this.register();
     }
 }
 

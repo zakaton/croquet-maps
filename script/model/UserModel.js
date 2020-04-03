@@ -1,5 +1,5 @@
 import CryptoModel from "./CryptoModel.js";
-import MarkerModel from "./MarkerModel.js";
+import MarkerManagerModel from "./MarkerManagerModel.js";
 
 class UserModel extends Croquet.Model {
     init(options = {}) {
@@ -17,9 +17,7 @@ class UserModel extends Croquet.Model {
 
         this.subscribe(this.id, "send-encrypted-message", this.onmessage);
 
-        this.markers = [];
-        this.subscribe(this.id, "create-marker-request", this.createMarker);
-        this.subscribe(this.id, "remove-marker-request", this.removeMarker);
+        this.markerManager = MarkerManagerModel.create(this);        
     }
 
     get isOnline() {
@@ -52,24 +50,6 @@ class UserModel extends Croquet.Model {
         if(this.crypto.isNonceUnique(nonce)) {
             this.crypto.nonces.push(nonce);
             this.publish(this.id, "receive-encrypted-message", ...arguments);
-        }
-    }
-
-    createMarker() {
-        const object = this.crypto.verify(...arguments);
-        if(object) {
-            Object.assign(object, {crypto : this.crypto});
-            const marker = new MarkerModel(object);
-            this.markers.push(marker);
-            this.publish(this.id, "create-marker", marker);
-        }
-    }
-    removeMarker() {
-        const object = this.crypto.verify(...arguments);
-        if(object) {
-            const {marker} = object;
-            this.markers.splice(this.markers.indexOf(marker), 1);
-            this.publish(this.id, "remove-marker", marker);
         }
     }
 }

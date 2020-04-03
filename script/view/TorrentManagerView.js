@@ -48,6 +48,10 @@ class TorrentManagerView extends Croquet.View {
             // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#clientaddtorrentid-opts-function-ontorrent-torrent-
             this._client.add(...arguments);
         }
+        else {
+            callback = callback || options;
+            callback(torrent);
+        }
     }
     _add({torrentId, options, callback}) {
         this.add(torrentId, options, callback);

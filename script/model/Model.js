@@ -6,8 +6,8 @@ class Model extends Croquet.Model {
         super.init();
         
         this.crypto = CryptoModel.create({}, "RootCryptoModel");
+        
         this.users = [];
-
         this.subscribe(this.sessionId, "user-register-request", this.register);
     }
 
@@ -21,6 +21,7 @@ class Model extends Croquet.Model {
     }
     unregister(user) {
         this.users.splice(this.users.indexOf(user), 1);
+        user.destroy();
     }
 }
 Model.register();

@@ -1,5 +1,4 @@
 const textEncoder = new TextEncoder();
-const textDecoder = new TextDecoder();
 
 class CryptoModel extends Croquet.Model {
     init(options = {}) {

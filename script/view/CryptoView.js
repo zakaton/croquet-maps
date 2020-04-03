@@ -17,6 +17,7 @@ class CryptoView extends Croquet.View {
         if(localStorage.getItem("signatureKeyPair") == null) {
             // https://github.com/dchest/tweetnacl-js#naclsignkeypair
             const keyPair = nacl.sign.keyPair();
+            
             localStorage.setItem("signatureKeyPair", JSON.stringify({
                 publicKey : Array.from(keyPair.publicKey),
                 secretKey : Array.from(keyPair.secretKey),
@@ -53,6 +54,7 @@ class CryptoView extends Croquet.View {
         if(localStorage.getItem("encryptionKeyPair") == null) {
             // https://github.com/dchest/tweetnacl-js/blob/master/README.md#naclboxkeypair
             const keyPair = nacl.box.keyPair();
+            
             localStorage.setItem("encryptionKeyPair", JSON.stringify({
                 publicKey : Array.from(keyPair.publicKey),
                 secretKey : Array.from(keyPair.secretKey),

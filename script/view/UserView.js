@@ -1,6 +1,6 @@
 import PeerView from "./PeerView.js";
 import TorrentView from "./TorrentView.js";
-import MarkerView from "./MarkerView.js";
+import MarkerManagerView from "./MarkerManagerView.js";
 
 class UserView extends Croquet.View {
     constructor(model, options = {}) {
@@ -25,13 +25,9 @@ class UserView extends Croquet.View {
 
         this.peer = new PeerView(model);
 
-        this.client = new TorrentView();
+        this.client = new TorrentView(model);
 
-        this.markers = [];
-        this.model.markers.forEach(markerModel => {
-            const marker = new MarkerView(markerModel);
-            this.markers.push(marker);
-        });
+        this.markerManager = new MarkerManagerView(model.markerManager, this);
     }
 
     login(viewId) {
