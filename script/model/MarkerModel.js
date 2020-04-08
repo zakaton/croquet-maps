@@ -5,23 +5,22 @@ class MarkerModel extends Croquet.Model {
         this.model = model;
         this.type = type;
 
-        if(position) {
-            const {longitude, latitude} = options.position;
-            this.position = {longitude, latitude};
-        }
+        this.position = position;
 
         switch(this.type) {
             case "user":
-                this.magnetURI = magnetURI;
                 break;
             case "picture":
-                this.magnetURI = magnetURI;
+                this.picture = magnetURI;
                 break;
             case "video":
-                this.magnetURI = magnetURI;
+                this.video = magnetURI;
                 break;
             case "comment":
                 this.comment = comment;
+                break;
+            case "audio":
+                this.audio = magnetURI;
                 break;
             default:
                 break;
@@ -29,6 +28,19 @@ class MarkerModel extends Croquet.Model {
 
         this.subscribe(this.id, "remove-marker-request", this.remove);
         this.subscribe(this.id, "set-position-request", this.setPosition);
+    }
+
+    get position() {
+        if(this.type == "user") {
+            return this.model.user.position;
+        }
+        else {
+            return this._position;
+        }
+    }
+    set position(position) {
+        if(this.type !== "user")
+            this._position = position;
     }
 
     remove() {

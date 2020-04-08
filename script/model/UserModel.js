@@ -17,7 +17,11 @@ class UserModel extends Croquet.Model {
 
         this.subscribe(this.id, "send-encrypted-message", this.onmessage);
 
-        this.markerManager = MarkerManagerModel.create(this);        
+        this.subscribe(this.id, "set-username-request", this.setUsername);
+        this.subscribe(this.id, "set-picture-request", this.setPicture);
+        this.subscribe(this.id, "set-position-request", this.setPosition);
+
+        this.markerManager = MarkerManagerModel.create(this);    
     }
 
     get isOnline() {
@@ -50,6 +54,31 @@ class UserModel extends Croquet.Model {
         if(this.crypto.isNonceUnique(nonce)) {
             this.crypto.nonces.push(nonce);
             this.publish(this.id, "receive-encrypted-message", ...arguments);
+        }
+    }
+
+    setUsername() {
+        const object = this.crypto.verify(...arguments);
+        if(object) {
+            const {username} = object;
+            this.username = username;
+            this.publish(this.id, "set-username", this);
+        }
+    }
+    setPicture() {
+        const object = this.crypto.verify(...arguments);
+        if(object) {
+            const {picture} = object;
+            this.picture = picture;
+            this.publish(this.id, "set-picture", this);
+        }
+    }
+    setPosition() {
+        const object = this.crypto.verify(...arguments);
+        if(object) {
+            const {position} = object;
+            this.position = position;
+            this.publish(this.id, "set-position", this);
         }
     }
 }

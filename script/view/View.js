@@ -2,12 +2,20 @@ import CryptoView from "./CryptoView.js";
 import UserView from "./UserView.js";
 import TorrentManagerView from "./TorrentManagerView.js";
 import MapView from "./MapView.js";
+import MapUIView from "./MapUIView.js";
+import SpatialAudioManager from "./SpatialAudioManager.js";
 
 class View extends Croquet.View {
     constructor(model) {
         super(model);
         this.model = model;
         this.crypto = new CryptoView(model.crypto);
+
+        this.spatialAudioManager = new SpatialAudioManager(model);
+
+        this.map = new MapView(model, {
+            accessToken : 'pk.eyJ1IjoiemFrYXRvbiIsImEiOiJjazVoN2pxNjQwMHdyM25vZDFxbHl0cHJ6In0.jdS84m3f3cr4ZxHeSDUyBA',
+        });
 
         this.users = [];
         model.users.forEach(userModel => this.userRegister(userModel));
@@ -22,9 +30,7 @@ class View extends Croquet.View {
 
         this.client = new TorrentManagerView();
 
-        this.map = new MapView(model, {
-            accessToken : 'pk.eyJ1IjoiemFrYXRvbiIsImEiOiJjazVoN2pxNjQwMHdyM25vZDFxbHl0cHJ6In0.jdS84m3f3cr4ZxHeSDUyBA',
-        });
+        this.mapUI = new MapUIView(model);
     }
 
     register() {
@@ -44,6 +50,7 @@ class View extends Croquet.View {
 
     userRegister(userModel) {
         let user;
+
         if(this.isOwnUserModel(userModel)) {
             user = new UserView(userModel, this);
             this.user = user;
@@ -51,7 +58,6 @@ class View extends Croquet.View {
         else {
             user = new UserView(userModel);
         }
-
         this.users.push(user);
     }
     userUnregister(user) {
@@ -73,6 +79,18 @@ class View extends Croquet.View {
         console.log("synced");
         if(!this.user)
             this.register();
+    }
+
+    detach() {
+        // https://croquet.io/sdk/docs/View.html#detach
+        super.detach();
+        
+        this.users.forEach(user => user.detach());
+        this.crypto.detach();
+        this.map.detach();
+        this.mapUI.detach();
+        this.client.detach();
+        this.spatialAudioManager.detach();
     }
 }
 

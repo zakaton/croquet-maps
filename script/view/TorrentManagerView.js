@@ -15,13 +15,23 @@ class TorrentManagerView extends Croquet.View {
         });
     }
 
-    seed(files, options, callback) {
+    getMagnetURI(files, callback) {
         // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#clientseedinput-opts-function-onseed-torrent-
         this._hashingClient.seed(files, torrent => {
             const {magnetURI} = torrent;
 
+            // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#torrentdestroycallback
+            torrent.destroy(() => {
+                callback(magnetURI);
+            });
+        });
+    }
+
+    seed(files, options, callback) {
+        this.getMagnetURI(files, magnetURI => {
             // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#clientgettorrentid
             const _torrent = this._client.get(magnetURI);
+
             if(_torrent) {
                 // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#torrentdestroycallback
                 _torrent.destroy(() => {
@@ -33,8 +43,6 @@ class TorrentManagerView extends Croquet.View {
                 // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#clientseedinput-opts-function-onseed-torrent-
                 this._client.seed(...arguments);
             }
-
-            torrent.destroy();
         });
     }
     _seed({files, options, callback}) {

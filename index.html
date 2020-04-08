@@ -17,6 +17,12 @@
 
         <!-- https://github.com/feross/simple-peer -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.6.2/simplepeer.min.js"></script>
+
+        <!-- https://resonance-audio.github.io/resonance-audio/develop/web/getting-started.html -->
+        <script src="https://cdn.jsdelivr.net/npm/resonance-audio/build/resonance-audio.min.js"></script>
+
+        <!-- https://github.com/bbc/peaks.js -->
+        <script src="https://cdnjs.com/libraries/peaks.js"></script>
         
         <script src="./script/script.js" type="module"></script>
     </head>
@@ -25,13 +31,141 @@
         html, body {
             margin: 0;
         }
+        #container {
+            display: grid;
+            grid-template-columns: 60% 40%;
+            width: 100%;
+            height: 100%;
+        }
+        #map {
+            grid-row: 1;
+            grid-column: 1;
+        }
+        #ui {
+            grid-row: 1;
+            grid-column: 2;
+            overflow: scroll;
+        }
         .mapboxgl-map {
             width: 100%;
-            height: 50%;
+            height: 100%;
+        }
+        [data-marker="user"] {
+            background-color: blue;
+        }
+        [data-marker] {
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            border-radius: 50%;
+        }
+        [data-popup] {
+            font-size: 20px;
         }
      </style>
 
     <body>
-        <div id="map"></div>
+        <div id="container">
+            <div id="map"></div>
+            <div id="ui">
+                <h1 style="text-align: center;">Croquet Maps</h1>
+                <hr>
+
+                <!-- Username -->
+                <h2>Username</h2>
+                <p><span data-ui="username">anonymous</span></p>
+                <p>
+                    <input data-ui="username">
+                    <button data-ui="username">Change Username</button>
+                </p>
+                <hr>
+
+                <!-- Picture -->
+                <h2>Picture</h2>
+
+                <img width=100 data-ui="picture">
+
+                <input data-ui="picture" type="file" accept="image/*">
+
+                <button data-ui="picture">Choose picture</button>
+                <hr>
+
+                <!-- Position -->
+                <h2>Position</h2>
+                
+                <p>Longitude: <span data-ui="longitude"></span></p>
+                <p>Latitude: <span data-ui="latitude"></span></p>
+
+                <p>
+                    <button data-ui="tracking">Stop Tracking</button>
+                </p>
+
+                <p>
+                    <!-- Bearing -->
+                    <h3>Bearing</h3>
+                    <input value=0 oninput="document.querySelector(`input[type='number'][data-ui='bearing']`).value = this.value" type="range" min='0' max='360' data-ui="bearing">
+                    <input value=0 oninput="document.querySelector(`input[type='range'][data-ui='bearing']`).value = this.value" data-ui="bearing" type="number" step='1' min='0' max='360' data-ui="bearing">
+                </p>
+
+                <!-- Set Longtiude/Latitude -->
+                <h3>Fake Location</h3>
+                <p>
+                    <label>
+                        Longitude: <input type="number" data-ui="longitude">
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        Latitude: <input type="number" data-ui="latitude">
+                    </label>
+                </p>
+                <p>
+                    <button data-ui="fakeLocation">Submit fake location</button>
+                </p>
+
+                <hr>
+
+                <!-- Markers -->
+                <h2>Markers</h2>
+
+                <h3>Add Comment</h3>
+                <p>
+                    <textarea data-ui="commentMarker"></textarea>
+                </p>
+                <p>
+                    <button data-ui="commentMarker">Add Comment</button>
+                </p>
+                
+                <h3>Add Picture</h3>
+                <p>
+                    <img width=200 data-ui="pictureMarker">
+                </p>
+                <p>
+                    <input data-ui="pictureMarker" type="file" accept="image/*">
+                </p>
+                <p>
+                    <button data-ui="pictureMarker">Add Picture</button>
+                </p>
+
+                <h3>Add Video</h3>
+                <p>
+                    <video controls data-ui="videoMarker" width=200></video>
+                </p>
+                <p>
+                    <input data-ui="videoMarker" type="file" accept="video/*">
+                </p>
+                <p>
+                    <button data-ui="videoMarker">Add Video</button>
+                </p>
+
+                <h3>Record Audio</h3>
+                <p>
+                    <button data-ui="audioMarker">Record Audio</button>
+                </p>
+                <p>
+                    <button data-ui="audioMarker">Add Audio</button>
+                </p>
+            </div>
+        </div>
     </body>
 </html>

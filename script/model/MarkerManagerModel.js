@@ -1,11 +1,15 @@
 import MarkerModel from "./MarkerModel.js";
 
 class MarkerManagerModel extends Croquet.Model {
-    init({crypto}) {
+    init(user) {
         super.init();
-        this.crypto = crypto;
+        this.crypto = user.crypto;
+        this.user = user;
 
         this.markers = [];
+        this.userMarker = MarkerModel.create({model : this, type : "user"});
+        this.markers.push(this.userMarker);
+        this.publish(this.id, "create-marker", this.userMarker);
 
         this.subscribe(this.id, "create-marker-request", this.create);
     }
