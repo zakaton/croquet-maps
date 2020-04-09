@@ -9,7 +9,9 @@ class MarkerManagerView extends Croquet.View {
         this.crypto = user.crypto;
         
         this.markers = [];
-        this.model.markers.forEach(markerModel => this._create(markerModel));
+        this.model.markers.forEach(markerModel => {
+            this._create(markerModel);
+        });
         this.subscribe(model.id, "create-marker", this._create);
         this.subscribe(this.id, "remove-marker", this._remove);
         
@@ -38,7 +40,8 @@ class MarkerManagerView extends Croquet.View {
     }
     
     _remove(marker) {
-        this.markers.splice(this.markers.indexOf(marker), 1);
+        if(this.markers.includes(marker))
+            this.markers.splice(this.markers.indexOf(marker), 1);
     }
 }
 

@@ -1,7 +1,7 @@
 import View from "./view/View.js"
 import Model from "./model/Model.js";
 
-Croquet.startSession("croquet-maps-demo-42", Model, View)
+Croquet.startSession("croquet-maps-demo-999", Model, View)
     .then(session => {
         const {view, model} = session;
         console.log("session started")

@@ -172,13 +172,24 @@ class MarkerView extends Croquet.View {
                 break;
             case "picture":
                 const image = document.createElement("img");
-                image.width = 200;
+                image.width = 300;
 
                 this.popupElement.appendChild(image);
                 this.client.add(this.model.picture, torrent => {
-                    const file = torrent.files[0];
-                    // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#filerendertoelem-opts-function-callback-err-elem--browser-only
-                    file.renderTo(image);
+
+                    const callback = () => {
+                        const file = torrent.files[0];
+                        // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#filerendertoelem-opts-function-callback-err-elem--browser-only
+                        file.renderTo(image);
+                    }
+
+                    // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#torrentdone
+                    if(torrent.done)
+                        callback();
+                    else {
+                        // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#torrentondone-function--
+                        torrent.on('done', callback.bind(this));
+                    }
                 });
                 this.markerElement.innerText = '🖼️';
                 break;
@@ -187,32 +198,53 @@ class MarkerView extends Croquet.View {
                 audio.controls = true;
                 this.popupElement.appendChild(audio);
                 this.client.add(this.model.audio, torrent => {
-                    const file = torrent.files[0];
-                    file.getBlobURL((error, blobURL) => {
-                        if(error)
-                            console.error(error);
-                        else {
-                            audio.src = blobURL;
-                            this.publish(this.id, "update-source", {audio});
-                        }
-                    });
+
+                    const callback = () => {
+                        const file = torrent.files[0];
+                        file.getBlobURL((error, blobURL) => {
+                            if(error)
+                                console.error(error);
+                            else {
+                                audio.src = blobURL;
+                                this.publish(this.id, "update-source", {audio});
+                            }
+                        });
+                    }
+
+                    // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#torrentdone
+                    if(torrent.done)
+                        callback();
+                    else {
+                        // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#torrentondone-function--
+                        torrent.on('done', callback.bind(this));
+                    }
                 });
                 this.markerElement.innerText = '📻';
                 break;
             case "video":
                 const video = document.createElement('video');
                 video.controls = true;
-                video.width = 200;
+                video.width = 300;
                 this.popupElement.appendChild(video);
                 this.client.add(this.model.video, torrent => {
-                    const file = torrent.files[0];
-                    // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#filerendertoelem-opts-function-callback-err-elem--browser-only
-                    file.renderTo(video, (error, video) => {
-                        if(error)
-                            console.error(error)
-                        else
-                            this.publish(this.id, "update-source", {video});
-                    });
+                    const callback = () => {
+                        const file = torrent.files[0];
+                        // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#filerendertoelem-opts-function-callback-err-elem--browser-only
+                        file.renderTo(video, (error, video) => {
+                            if(error)
+                                console.error(error)
+                            else
+                                this.publish(this.id, "update-source", {video});
+                        });
+                    }
+
+                    // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#torrentdone
+                    if(torrent.done)
+                        callback();
+                    else {
+                        // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#torrentondone-function--
+                        torrent.on('done', callback.bind(this));
+                    }
                 });
                 this.markerElement.innerText = '📺';
                 break;

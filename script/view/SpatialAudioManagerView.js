@@ -8,7 +8,8 @@ class SpatialAudioManagerView extends Croquet.View {
         this.audioContext = new AudioContext();
 
         window.addEventListener("click", event => {
-            this.audioContext.resume();
+            if(this.audioContext.state !== "closed")
+                this.audioContext.resume();
         }, {once: true});
 
         // https://resonance-audio.github.io/resonance-audio/reference/web/ResonanceAudio.html

@@ -11,6 +11,8 @@ class View extends Croquet.View {
         this.model = model;
         this.crypto = new CryptoView(model.crypto);
 
+        this.client = new TorrentManagerView(model);
+
         this.spatialAudioManager = new SpatialAudioManagerView(model);
 
         this.map = new MapView(model, {
@@ -28,7 +30,6 @@ class View extends Croquet.View {
         // https://croquet.studio/sdk/docs/global.html#event:synced
         this.subscribe(this.viewId, "synced", this.synced);
 
-        this.client = new TorrentManagerView(model);
 
         this.mapUI = new MapUIView(model);
     }

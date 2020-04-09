@@ -4,7 +4,7 @@ class MapView extends Croquet.View {
 
         options.container =  options.container ||  document.createElement("div");
         options.style = options.style || 'mapbox://styles/mapbox/streets-v11';
-        options.zoom = 10;
+        options.zoom = 15;
 
         this.markers = [];
         
