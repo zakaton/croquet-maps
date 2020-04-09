@@ -3,7 +3,7 @@ import UserView from "./UserView.js";
 import TorrentManagerView from "./TorrentManagerView.js";
 import MapView from "./MapView.js";
 import MapUIView from "./MapUIView.js";
-import SpatialAudioManager from "./SpatialAudioManager.js";
+import SpatialAudioManagerView from "./SpatialAudioManagerView.js";
 
 class View extends Croquet.View {
     constructor(model) {
@@ -11,7 +11,7 @@ class View extends Croquet.View {
         this.model = model;
         this.crypto = new CryptoView(model.crypto);
 
-        this.spatialAudioManager = new SpatialAudioManager(model);
+        this.spatialAudioManager = new SpatialAudioManagerView(model);
 
         this.map = new MapView(model, {
             accessToken : 'pk.eyJ1IjoiemFrYXRvbiIsImEiOiJjazVoN2pxNjQwMHdyM25vZDFxbHl0cHJ6In0.jdS84m3f3cr4ZxHeSDUyBA',
@@ -28,7 +28,7 @@ class View extends Croquet.View {
         // https://croquet.studio/sdk/docs/global.html#event:synced
         this.subscribe(this.viewId, "synced", this.synced);
 
-        this.client = new TorrentManagerView();
+        this.client = new TorrentManagerView(model);
 
         this.mapUI = new MapUIView(model);
     }

@@ -1,4 +1,5 @@
 import TorrentView from "./TorrentView.js";
+import MediaRecorderView from "./MediaRecorderView.js"
 
 class MapUIView extends Croquet.View {
     constructor(model) {
@@ -36,6 +37,10 @@ class MapUIView extends Croquet.View {
         this.subscribe(this.viewId, "map-update-watch", this.onWatchUpdate);
         this.addEventListener(this.trackingButton, "click", this.onTrackingButtonClick.bind(this));
 
+        this.trackBearingButton = document.querySelector(`button[data-ui="bearing"]`);
+        this.subscribe(this.viewId, "map-update-bearing-watch", this.onBearingWatchUpdate);
+        this.addEventListener(this.trackBearingButton, "click", this.onTrackBearingButtonClick.bind(this));
+
         this.bearingInputRange = document.querySelector(`input[type="range"][data-ui="bearing"]`);
         this.bearingInputNumber = document.querySelector(`input[type="number"][data-ui="bearing"]`);
         this.subscribe(this.viewId, "map-update-bearing", this.onBearingUpdate);
@@ -56,13 +61,29 @@ class MapUIView extends Croquet.View {
         this.pictureMarkerInput = document.querySelector(`input[data-ui="pictureMarker"]`);
         this.addEventListener(this.pictureMarkerInput, "input", this.onPictureMarkerInput.bind(this));
         this.pictureMarkerButton = document.querySelector(`button[data-ui="pictureMarker"]`);
-        this.addEventListener(this.pictureMarkerButton, "click", this.onPictureMarkerButtonClick.bind(this))
+        this.addEventListener(this.pictureMarkerButton, "click", this.onPictureMarkerButtonClick.bind(this));
 
         this.videoMarkerVideo = document.querySelector(`video[data-ui="videoMarker"]`);
         this.videoMarkerInput = document.querySelector(`input[data-ui="videoMarker"]`);
         this.addEventListener(this.videoMarkerInput, "input", this.onVideoMarkerInput.bind(this));
         this.videoMarkerButton = document.querySelector(`button[data-ui="videoMarker"]`);
-        this.addEventListener(this.videoMarkerButton, "click", this.onVideoMarkerButtonClick.bind(this))
+        this.addEventListener(this.videoMarkerButton, "click", this.onVideoMarkerButtonClick.bind(this));
+
+        this.audioMarkerAudio = document.querySelector(`audio[data-ui="audioMarker"]`);
+        this.audioMarkerInput = document.querySelector(`input[data-ui="audioMarker"]`);
+        this.addEventListener(this.audioMarkerInput, "input", this.onAudioMarkerInput.bind(this));
+        this.audioMarkerButton = document.querySelector(`button[data-ui="audioMarker"]`);
+        this.addEventListener(this.audioMarkerButton, "click", this.onAudioMarkerButtonClick.bind(this));
+
+        this.audioRecordMarkerAudio = document.querySelector(`audio[data-ui="audioRecordMarker"]`);
+        this.audioRecordMarkerRecordButton = document.querySelectorAll(`button[data-ui="audioRecordMarker"]`)[0];
+        this.addEventListener(this.audioRecordMarkerRecordButton, "click", this.onAudioRecordMarkerRecordButtonClick.bind(this));
+        this.audioRecordMarkerButton = document.querySelectorAll(`button[data-ui="audioRecordMarker"]`)[1];
+        this.addEventListener(this.audioRecordMarkerButton, "click", this.onAudioRecordMarkerButtonClick.bind(this));
+
+        this.mediaRecorder = new MediaRecorderView(model);
+        this.subscribe(this.viewId, "media-recorder-audioBlob", this.onAudioBlob);
+        this.subscribe(this.viewId, "media-recorder-update-state", this.mediaRecorderUpdate);
     }
 
     addEventListener(element, type, listener) {
@@ -119,7 +140,19 @@ class MapUIView extends Croquet.View {
         this.bearingInputNumber.value = this.bearingInputRange.value = bearing;
     }
     onBearingInput() {
+        this.publish(this.viewId, "map-set-bearing-watch", false);
         this.publish(this.viewId, "map-set-bearing", this.bearingInputRange.value);
+    }
+
+    onTrackBearingButtonClick() {
+        this.publish(this.viewId, "map-get-bearing-watch", watching => {
+            this.publish(this.viewId, "map-set-bearing-watch", !watching);
+        });
+    }
+    onBearingWatchUpdate(watching) {
+        this.trackBearingButton.innerText = watching?
+            "Stop Tracking Bearing":
+            "Track Bearing";
     }
 
     // https://croquet.io/sdk/docs/View.html#detach
@@ -129,6 +162,9 @@ class MapUIView extends Croquet.View {
         this.eventListeners.forEach(function({element, type, listener}) {
             element.removeEventListener(type, listener);
         });
+
+        this.mediaRecorder.detach();
+        this.client.detach();
 
         super.detach();
     }
@@ -244,6 +280,74 @@ class MapUIView extends Croquet.View {
                 this.videoMarkerInput.value = '';
             });
         }
+    }
+
+    onAudioMarkerInput() {
+        const {files} = this.audioMarkerInput;
+        const file = files[0];
+        if(file) {
+            this.getFileSrc(file, src => {
+                this.audioMarkerAudio.src = src;
+            });
+        }
+    }
+    onAudioMarkerButtonClick() {
+        const {files} = this.audioMarkerInput;
+        const file = files[0];
+        if(file && this.position) {
+            this.client.seed(file, torrent => {
+                const {magnetURI} = torrent;
+                this.publish(this.viewId, "create-marker-request", {
+                    position : this.position,
+                    magnetURI,
+                    type : "audio",
+                });
+                
+                this.audioMarkerAudio.src = '';
+                this.audioMarkerInput.value = '';
+            });
+        }
+    }
+
+    onAudioRecordMarkerRecordButtonClick() {
+        this.publish(this.viewId, "media-recorder-get-state", state => {
+            if(state == "recording")
+                this.publish(this.viewId, "media-recorder-stop");
+            else
+                this.publish(this.viewId, "media-recorder-start");
+        });
+    }
+    mediaRecorderUpdate(state) {
+        switch(state) {
+            case "recording":
+                this.audioRecordMarkerRecordButton.innerText = "Stop Recording";
+                break;
+            default:
+                this.audioRecordMarkerRecordButton.innerText = "Start Recording";
+                break;
+        }
+    }
+
+    onAudioRecordMarkerButtonClick() {
+        this.publish(this.viewId, "media-recorder-get-audioBlob", audioBlob => {
+            if(audioBlob && this.position) {
+                console.log(audioBlob);
+                this.client.seed(audioBlob, torrent => {
+                    const {magnetURI} = torrent;
+                    this.publish(this.viewId, "create-marker-request", {
+                        position : this.position,
+                        magnetURI,
+                        type : "audio",
+                    });
+                    
+                    this.audioRecordMarkerAudio.src = '';
+                });
+            }
+        });
+    }
+    onAudioBlob(audioBlob) {
+        const audioURL = URL.createObjectURL(audioBlob);
+        this.audioRecordMarkerAudio.src = audioURL;
     }
 
     getFileSrc(file, callback) {

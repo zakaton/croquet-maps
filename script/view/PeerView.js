@@ -45,9 +45,8 @@ class PeerView extends Croquet.View {
             return new Promise((resolve, reject) => {
                 if(this.streamOptions) {
                     // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-                    navigator.mediaDevices.getUserMedia(this.streamOptions)
+                    window.navigator.mediaDevices.getUserMedia(this.streamOptions)
                         .then(stream => {
-                            console.log("STREAM");
                             _options.stream = stream;
                             resolve();
                         });

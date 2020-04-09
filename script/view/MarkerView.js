@@ -63,11 +63,8 @@ class MarkerView extends Croquet.View {
                     });
                     this.subscribe(this.user.model.id, "peer-stream", _ => {
                         const {peer, stream} = _;
-                        const audio = document.createElement('audio');
-                        audio.srcObject = stream;
-                        audio.play();
 
-                        this.publish(this.id, "update-source", {audio});
+                        this.publish(this.id, "update-source", {stream});
                     });
 
                     startCallButton.addEventListener("click", event => {
@@ -187,15 +184,17 @@ class MarkerView extends Croquet.View {
                 break;
             case "audio":
                 const audio = document.createElement("audio");
+                audio.controls = true;
                 this.popupElement.appendChild(audio);
-                this.client.add(this.model.video, torrent => {
+                this.client.add(this.model.audio, torrent => {
                     const file = torrent.files[0];
-                    // https://github.com/webtorrent/webtorrent/blob/master/docs/api.md#filerendertoelem-opts-function-callback-err-elem--browser-only
-                    file.renderTo(audio, (error, audio) => {
+                    file.getBlobURL((error, blobURL) => {
                         if(error)
                             console.error(error);
-                        else
+                        else {
+                            audio.src = blobURL;
                             this.publish(this.id, "update-source", {audio});
+                        }
                     });
                 });
                 this.markerElement.innerText = '📻';

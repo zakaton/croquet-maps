@@ -40,6 +40,11 @@ class MapView extends Croquet.View {
         this.subscribe(this.viewId, "map-set-bearing", this.setBearing);
         // https://docs.mapbox.com/mapbox-gl-js/api/#map#getbearing
         this.subscribe(this.viewId, "map-get-bearing", callback => callback(this._map.getBearing()));
+
+        this.watchingBearing = false;
+        //this.watchBearing();
+        this.subscribe(this.viewId, "map-set-bearing-watch", this.setBearingWatch);
+        this.subscribe(this.viewId, "map-get-bearing-watch", callback => callback(this.watchBearingId !== undefined));
     }
 
     addMarker(marker) {
@@ -76,6 +81,8 @@ class MapView extends Croquet.View {
     
     // https://croquet.io/sdk/docs/View.html#detach
     detach() {
+        this.clearBearingWatch();
+
         // https://docs.mapbox.com/mapbox-gl-js/api/#map#remove
         this._map.remove();
         super.detach();
@@ -89,10 +96,47 @@ class MapView extends Croquet.View {
         // https://docs.mapbox.com/mapbox-gl-js/api/#map#setzoom
         this._map.setZoom(zoom);
     }
+    
     setBearing(bearing) {
         // https://docs.mapbox.com/mapbox-gl-js/api/#map#setbearing
         this._map.setBearing(bearing);
         this.publish(this.viewId, "map-update-bearing", bearing);
+    }
+    setBearingWatch(watch) {
+        if(watch)
+            this.watchBearing();
+        else
+            this.clearBearingWatch();
+    }
+    watchBearing() {
+        if(this.watchBearingId == undefined) {
+            if(this.watchBearingCallback == undefined) {
+                // https://developer.mozilla.org/en-US/docs/Web/API/DeviceOrientationEvent
+                this.watchBearingCallback = ((event) => {
+                    const {webkitCompassHeading} = event;
+                    if(typeof webkitCompassHeading == "number") {
+                        this._bearing = webkitCompassHeading;
+                    }
+                }).bind(this);
+            }
+    
+            // https://developer.mozilla.org/en-US/docs/Web/API/Detecting_device_orientation
+            window.addEventListener("deviceorientation", this.watchBearingCallback);
+            this.watchBearingId = window.setInterval(() => {
+                if(this._bearing) {
+                    this.publish(this.viewId, "map-set-bearing", this._bearing);
+                }
+            }, 100);
+            this.publish(this.viewId, "map-update-bearing-watch", true);
+        }
+    }
+    clearBearingWatch() {
+        if(this.watchBearingId !== undefined) {
+            window.removeEventListener("deviceorientation", this.watchBearingCallback);
+            window.clearInterval(this.watchBearingId);
+            delete this.watchBearingId;
+            this.publish(this.viewId, "map-update-bearing-watch", false);
+        }
     }
 
     setPosition(position) {

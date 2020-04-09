@@ -21,8 +21,8 @@
         <!-- https://resonance-audio.github.io/resonance-audio/develop/web/getting-started.html -->
         <script src="https://cdn.jsdelivr.net/npm/resonance-audio/build/resonance-audio.min.js"></script>
 
-        <!-- https://github.com/bbc/peaks.js -->
-        <script src="https://cdnjs.com/libraries/peaks.js"></script>
+        <!-- https://turfjs.org/ -->
+        <script src='https://unpkg.com/@turf/turf/turf.min.js'></script>
         
         <script src="./script/script.js" type="module"></script>
     </head>
@@ -107,6 +107,10 @@
                     <input value=0 oninput="document.querySelector(`input[type='range'][data-ui='bearing']`).value = this.value" data-ui="bearing" type="number" step='1' min='0' max='360' data-ui="bearing">
                 </p>
 
+                <p>
+                    <button data-ui="bearing">Stop Tracking Bearing</button>
+                </p>
+
                 <!-- Set Longtiude/Latitude -->
                 <h3>Fake Location</h3>
                 <p>
@@ -158,12 +162,26 @@
                     <button data-ui="videoMarker">Add Video</button>
                 </p>
 
-                <h3>Record Audio</h3>
+                <h3>Add Audio</h3>
                 <p>
-                    <button data-ui="audioMarker">Record Audio</button>
+                    <audio controls data-ui="audioMarker"></audio>
+                </p>
+                <p>
+                    <input data-ui="audioMarker" type="file" accept="audio/*">
                 </p>
                 <p>
                     <button data-ui="audioMarker">Add Audio</button>
+                </p>
+
+                <h3>Record Audio</h3>
+                <p>
+                    <audio controls data-ui="audioRecordMarker"></audio>
+                </p>
+                <p>
+                    <button data-ui="audioRecordMarker">Record Audio</button>
+                </p>
+                <p>
+                    <button data-ui="audioRecordMarker">Add Audio</button>
                 </p>
             </div>
         </div>
