@@ -86,7 +86,7 @@ class SpatialAudioManagerView extends Croquet.View {
                     const {source} = this.sources.get(marker);
                     
                     // https://resonance-audio.github.io/resonance-audio/reference/web/Source.html#setPosition
-                    source.setPosition(x, y, z);
+                    source.setPosition(10*x, y, 10*z);
                 });
             }
         }
